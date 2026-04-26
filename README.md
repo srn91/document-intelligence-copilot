@@ -1,6 +1,6 @@
 # document-intelligence-copilot
 
-A local-first document intelligence workflow that ingests OCR-exported invoice text, extracts structured business fields, validates them, and produces reviewer-ready output for human signoff.
+A local-first document intelligence workflow that ingests OCR-exported invoice text, extracts structured business fields, validates them, and produces a human-review packet for signoff.
 
 ## Problem
 
@@ -8,13 +8,13 @@ Document AI demos often stop at "the model guessed some fields." Real document w
 
 ## Architecture
 
-The V1 implementation is deliberately lightweight and inspectable:
+The implementation is deliberately lightweight and inspectable:
 
 - sample OCR-exported invoice text files live in the repo
 - an extraction layer parses vendor, invoice identifiers, dates, amounts, currency, payment terms, and invoice line items
 - a validation layer applies business checks such as missing required fields, due-date ordering, line-item arithmetic mismatches, and suspicious totals
-- a review layer combines extracted fields, confidence signals, and validation issues into a reviewer-facing packet
-- reviewer corrections can be captured as append-only feedback records for future tuning
+- a review layer combines extracted fields, confidence signals, and validation issues into a human-review packet
+- operator corrections can be captured as append-only feedback records for future tuning
 - a FastAPI surface exposes the same extraction path that the CLI uses
 
 ```mermaid
@@ -30,7 +30,7 @@ flowchart LR
 
 ## Supported Inputs
 
-This V1 supports OCR-exported invoice text, not raw PDFs or image files. That choice keeps the workflow deterministic and makes the extraction and validation logic easy to inspect locally.
+This repo supports OCR-exported invoice text, not raw PDFs or image files. That choice keeps the workflow deterministic and makes the extraction and validation logic easy to inspect locally.
 
 Supported API shape:
 
@@ -43,7 +43,7 @@ Supported API shape:
 
 The `/extract` endpoint returns a review packet with extracted fields, confidence metadata, validation issues, and a recommended action.
 
-The `/corrections` endpoint records reviewer feedback as an append-only JSONL log so future extraction tuning can reuse real human corrections.
+The `/corrections` endpoint records human feedback as an append-only JSONL log so future extraction tuning can reuse real corrections.
 
 ## Pipeline Stages
 
@@ -58,7 +58,7 @@ The flow is:
 
 ## Tradeoffs
 
-This V1 makes three deliberate tradeoffs:
+This implementation makes three deliberate tradeoffs:
 
 1. The repo starts from OCR-exported text rather than raw PDFs or images so the extraction and validation logic stays runnable without external OCR binaries or cloud APIs.
 2. Extraction uses transparent rule-based parsing instead of a large model because the goal is a dependable review workflow, not a black-box demo.
@@ -129,13 +129,13 @@ make verify
 
 ## Validation
 
-The V1 repo currently verifies:
+The repo currently verifies:
 
 - required invoice fields are extracted into structured JSON
 - extraction confidence is surfaced per field instead of hidden
 - business validation flags missing or suspicious values before approval
 - line-item arithmetic and document-level total reconciliation are checked explicitly
-- reviewer corrections are written to an append-only JSONL log
+- human corrections are written to an append-only JSONL log
 - CLI and API use the same extraction and review logic
 
 Current sample review snapshot:
@@ -157,11 +157,11 @@ Local quality gates:
 
 ## Current Capabilities
 
-The V1 repo demonstrates:
+The repo demonstrates:
 
 - deterministic parsing of OCR-style invoice text
 - structured invoice extraction with confidence metadata
 - validation rules for missing fields, due-date ordering, line-item reconciliation, and high-value manual review
-- reviewer-ready JSON and Markdown outputs
-- reviewer correction capture for future tuning
+- human-review JSON and Markdown outputs
+- correction capture for future tuning
 - FastAPI endpoints for sample extraction and ad hoc text submission
