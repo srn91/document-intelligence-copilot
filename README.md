@@ -115,6 +115,13 @@ Useful endpoints:
 make verify
 ```
 
+## Hosted Deployment
+
+- Live URL: [document-intelligence-copilot.onrender.com](https://document-intelligence-copilot.onrender.com)
+- Open this first: [`/extract/sample-invoice`](https://document-intelligence-copilot.onrender.com/extract/sample-invoice)
+- Browser smoke result: the hosted sample extraction returned a full review packet in-browser, including structured fields, confidence metadata, validation issues, and the recommended action.
+- Render config: branch `main`, auto-deploy on commit, runtime `python`, build command `pip install -r requirements.txt`, start command `uvicorn app.main:app --host 0.0.0.0 --port $PORT`, health check path `/health`
+
 ## Validation
 
 The V1 repo currently verifies:
