@@ -47,3 +47,14 @@ def test_validation_flags_line_item_reconciliation_errors() -> None:
 
     assert any(issue.code == "line_item_total_mismatch" for issue in issues)
     assert any(issue.code == "invoice_total_reconciliation_mismatch" for issue in issues)
+
+
+def test_review_packet_serialization_includes_correction_ready_fields() -> None:
+    extraction = extract_invoice(SAMPLE_INVOICE_PATH.read_text(encoding="utf-8"))
+    packet = build_review_packet(SAMPLE_INVOICE_PATH.name, extraction, validate_invoice(extraction))
+
+    payload = packet.to_dict()
+
+    assert payload["document_name"] == SAMPLE_INVOICE_PATH.name
+    assert payload["status"] == "needs_review"
+    assert "vendor_name" in payload["extraction"]

@@ -61,3 +61,16 @@ class ReviewPacket:
             item["unit_price"] = f"{Decimal(item['unit_price']):.2f}"
             item["line_total"] = f"{Decimal(item['line_total']):.2f}"
         return payload
+
+
+@dataclass(frozen=True)
+class ReviewerCorrection:
+    document_name: str
+    field_name: str
+    original_value: str
+    corrected_value: str
+    reviewer_name: str | None
+    note: str
+
+    def to_dict(self) -> dict[str, object]:
+        return asdict(self)

@@ -47,3 +47,26 @@ def test_extract_endpoint_handles_custom_text() -> None:
     assert body["status"] == "ready"
     assert body["issues"] == []
     assert body["extraction"]["line_item_subtotal"] == "980.25"
+
+
+def test_corrections_endpoint_persists_feedback(tmp_path, monkeypatch) -> None:
+    monkeypatch.setattr("app.corrections.CORRECTIONS_PATH", tmp_path / "reviewer_corrections.jsonl")
+
+    response = client.post(
+        "/corrections",
+        json={
+            "document_name": "invoice.txt",
+            "field_name": "vendor_name",
+            "original_value": "Northwind Industrial Supply",
+            "corrected_value": "Northwind Industrial Supply Co.",
+            "reviewer_name": "srn91",
+            "note": "Vendor suffix should be preserved for future extraction tuning.",
+        },
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "recorded"
+    assert body["correction"]["field_name"] == "vendor_name"
+    assert body["correction_path"].endswith("reviewer_corrections.jsonl")
+    assert tmp_path.joinpath("reviewer_corrections.jsonl").read_text(encoding="utf-8").strip()

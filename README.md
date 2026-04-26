@@ -14,6 +14,7 @@ The V1 implementation is deliberately lightweight and inspectable:
 - an extraction layer parses vendor, invoice identifiers, dates, amounts, currency, payment terms, and invoice line items
 - a validation layer applies business checks such as missing required fields, due-date ordering, line-item arithmetic mismatches, and suspicious totals
 - a review layer combines extracted fields, confidence signals, and validation issues into a reviewer-facing packet
+- reviewer corrections can be captured as append-only feedback records for future tuning
 - a FastAPI surface exposes the same extraction path that the CLI uses
 
 ```mermaid
@@ -42,6 +43,8 @@ Supported API shape:
 
 The `/extract` endpoint returns a review packet with extracted fields, confidence metadata, validation issues, and a recommended action.
 
+The `/corrections` endpoint records reviewer feedback as an append-only JSONL log so future extraction tuning can reuse real human corrections.
+
 ## Pipeline Stages
 
 The flow is:
@@ -50,7 +53,8 @@ The flow is:
 2. The extractor pulls out the vendor, invoice metadata, amount, currency, payment terms, optional purchase order, and individual line items.
 3. The validator checks for missing or suspicious values, verifies line-item arithmetic, and reconciles the line-item subtotal against the invoice total.
 4. The review layer packages the result for human approval.
-5. The FastAPI surface exposes the same logic for the CLI and HTTP clients.
+5. Reviewer corrections can be recorded against a document and field for later feedback loops.
+6. The FastAPI surface exposes the same logic for the CLI and HTTP clients.
 
 ## Tradeoffs
 
@@ -108,6 +112,7 @@ Useful endpoints:
 - `http://127.0.0.1:8000/health`
 - `http://127.0.0.1:8000/sample-documents`
 - `http://127.0.0.1:8000/extract/sample-invoice`
+- `http://127.0.0.1:8000/corrections`
 
 ### Run the Full Quality Gate
 
@@ -130,6 +135,7 @@ The V1 repo currently verifies:
 - extraction confidence is surfaced per field instead of hidden
 - business validation flags missing or suspicious values before approval
 - line-item arithmetic and document-level total reconciliation are checked explicitly
+- reviewer corrections are written to an append-only JSONL log
 - CLI and API use the same extraction and review logic
 
 Current sample review snapshot:
@@ -157,6 +163,7 @@ The V1 repo demonstrates:
 - structured invoice extraction with confidence metadata
 - validation rules for missing fields, due-date ordering, line-item reconciliation, and high-value manual review
 - reviewer-ready JSON and Markdown outputs
+- reviewer correction capture for future tuning
 - FastAPI endpoints for sample extraction and ad hoc text submission
 
 ## Future Expansion
@@ -165,6 +172,5 @@ Possible follow-on work outside the current shipped scope:
 
 1. add PDF and image ingestion with a pluggable OCR provider interface
 2. support tax, discount, and freight normalization on top of the reconciled line-item model
-3. add reviewer correction capture for future feedback loops
-4. add vendor-specific extraction templates and anomaly thresholds
-5. expose a small browser review UI on top of the review packet
+3. add vendor-specific extraction templates and anomaly thresholds
+4. expose a small browser review UI on top of the review packet
