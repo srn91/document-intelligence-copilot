@@ -159,13 +159,9 @@ The V1 repo demonstrates:
 - reviewer-ready JSON and Markdown outputs
 - FastAPI endpoints for sample extraction and ad hoc text submission
 
-## What This Proves
+## Future Expansion
 
-This repo proves that document intelligence can be transparent enough for hiring review: the document shape is explicit, the extraction rules are visible, validation is separate from parsing, and the final packet is ready for a human signoff step.
-
-## Next Steps
-
-Realistic follow-up work for the next milestone:
+Possible follow-on work outside the current shipped scope:
 
 1. add PDF and image ingestion with a pluggable OCR provider interface
 2. support tax, discount, and freight normalization on top of the reconciled line-item model
