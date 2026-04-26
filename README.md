@@ -56,7 +56,7 @@ document-intelligence-copilot/
 ### Install Dependencies
 
 ```bash
-git clone git@github.com:srn91/document-intelligence-copilot.git
+git clone https://github.com/srn91/document-intelligence-copilot.git
 cd document-intelligence-copilot
 python3 -m pip install -r requirements.txt
 ```
