@@ -27,6 +27,31 @@ flowchart LR
     C --> H["FastAPI extraction endpoint"]
 ```
 
+## Supported Inputs
+
+This V1 supports OCR-exported invoice text, not raw PDFs or image files. That choice keeps the workflow deterministic and makes the extraction and validation logic easy to inspect locally.
+
+Supported API shape:
+
+```json
+{
+  "document_name": "sample-invoice.txt",
+  "text": "Vendor: Northwind Industrial Supply\nInvoice Number: INV-2048\n..."
+}
+```
+
+The `/extract` endpoint returns a review packet with extracted fields, confidence metadata, validation issues, and a recommended action.
+
+## Pipeline Stages
+
+The flow is:
+
+1. OCR-exported invoice text enters the workflow.
+2. The extractor pulls out the vendor, invoice metadata, amount, currency, payment terms, and optional purchase order.
+3. The validator checks for missing or suspicious values.
+4. The review layer packages the result for human approval.
+5. The FastAPI surface exposes the same logic for the CLI and HTTP clients.
+
 ## Tradeoffs
 
 This V1 makes three deliberate tradeoffs:
@@ -123,6 +148,10 @@ The V1 repo demonstrates:
 - validation rules for missing fields, due-date ordering, and high-value manual review
 - reviewer-ready JSON and Markdown outputs
 - FastAPI endpoints for sample extraction and ad hoc text submission
+
+## What This Proves
+
+This repo proves that document intelligence can be transparent enough for hiring review: the document shape is explicit, the extraction rules are visible, validation is separate from parsing, and the final packet is ready for a human signoff step.
 
 ## Next Steps
 
