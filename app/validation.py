@@ -43,6 +43,41 @@ def validate_invoice(extraction: InvoiceExtraction) -> list[ValidationIssue]:
             )
         )
 
+    if not extraction.line_items:
+        issues.append(
+            ValidationIssue(
+                code="missing_line_items",
+                message="No invoice line items were extracted for subtotal reconciliation.",
+                severity="warning",
+            )
+        )
+    else:
+        for item in extraction.line_items:
+            computed_total = item.quantity * item.unit_price
+            if computed_total != item.line_total:
+                issues.append(
+                    ValidationIssue(
+                        code="line_item_total_mismatch",
+                        message=(
+                            f"Line item '{item.description}' declares {item.line_total:.2f} but quantity x unit price"
+                            f" equals {computed_total:.2f}."
+                        ),
+                        severity="critical",
+                    )
+                )
+
+        if extraction.line_item_subtotal != extraction.total_amount:
+            issues.append(
+                ValidationIssue(
+                    code="invoice_total_reconciliation_mismatch",
+                    message=(
+                        f"Line-item subtotal {extraction.line_item_subtotal:.2f} does not reconcile with invoice total"
+                        f" {extraction.total_amount:.2f}."
+                    ),
+                    severity="critical",
+                )
+            )
+
     if extraction.purchase_order is None:
         issues.append(
             ValidationIssue(

@@ -3,7 +3,13 @@ from __future__ import annotations
 import re
 from decimal import Decimal
 
-from app.models import ExtractedField, InvoiceExtraction
+from app.models import ExtractedField, InvoiceExtraction, LineItem
+
+
+LINE_ITEM_PATTERN = re.compile(
+    r"^- (?P<description>.+?) \| Qty (?P<quantity>\d+(?:\.\d+)?) \| Unit Price (?P<unit_price>\d+\.\d{2}) \| Line Total (?P<line_total>\d+\.\d{2})$",
+    flags=re.MULTILINE,
+)
 
 
 def _extract_field(pattern: str, text: str, confidence: float) -> ExtractedField:
@@ -36,6 +42,17 @@ def extract_invoice(text: str) -> InvoiceExtraction:
         raise ValueError("total amount not found")
     total_amount = Decimal(amount_match.group("value"))
 
+    line_items = [
+        LineItem(
+            description=match.group("description").strip(),
+            quantity=Decimal(match.group("quantity")),
+            unit_price=Decimal(match.group("unit_price")),
+            line_total=Decimal(match.group("line_total")),
+        )
+        for match in LINE_ITEM_PATTERN.finditer(text)
+    ]
+    line_item_subtotal = sum((item.line_total for item in line_items), Decimal("0.00"))
+
     return InvoiceExtraction(
         vendor_name=vendor_name,
         invoice_id=invoice_id,
@@ -45,4 +62,6 @@ def extract_invoice(text: str) -> InvoiceExtraction:
         currency=currency,
         payment_terms=payment_terms,
         purchase_order=purchase_order,
+        line_items=line_items,
+        line_item_subtotal=line_item_subtotal,
     )

@@ -9,8 +9,9 @@ Ship To: Accounts Payable, Alpine Ventures
 Total Amount: 18450.75
 
 Line Items
-- Precision valve assembly | Qty 15 | Unit Price 615.00
-- Sensor calibration kit | Qty 8 | Unit Price 653.72
+- Precision valve assembly | Qty 15 | Unit Price 615.00 | Line Total 9225.00
+- Sensor calibration kit | Qty 8 | Unit Price 653.72 | Line Total 5229.76
+- On-site startup and QA | Qty 1 | Unit Price 3995.99 | Line Total 3995.99
 
 Notes
 - Invoice routed from OCR export batch 2026-08-12-A

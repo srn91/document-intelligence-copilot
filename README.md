@@ -11,8 +11,8 @@ Document AI demos often stop at "the model guessed some fields." Real document w
 The V1 implementation is deliberately lightweight and inspectable:
 
 - sample OCR-exported invoice text files live in the repo
-- an extraction layer parses vendor, invoice identifiers, dates, amounts, currency, and payment terms
-- a validation layer applies business checks such as missing required fields, due-date ordering, and suspicious totals
+- an extraction layer parses vendor, invoice identifiers, dates, amounts, currency, payment terms, and invoice line items
+- a validation layer applies business checks such as missing required fields, due-date ordering, line-item arithmetic mismatches, and suspicious totals
 - a review layer combines extracted fields, confidence signals, and validation issues into a reviewer-facing packet
 - a FastAPI surface exposes the same extraction path that the CLI uses
 
@@ -47,8 +47,8 @@ The `/extract` endpoint returns a review packet with extracted fields, confidenc
 The flow is:
 
 1. OCR-exported invoice text enters the workflow.
-2. The extractor pulls out the vendor, invoice metadata, amount, currency, payment terms, and optional purchase order.
-3. The validator checks for missing or suspicious values.
+2. The extractor pulls out the vendor, invoice metadata, amount, currency, payment terms, optional purchase order, and individual line items.
+3. The validator checks for missing or suspicious values, verifies line-item arithmetic, and reconciles the line-item subtotal against the invoice total.
 4. The review layer packages the result for human approval.
 5. The FastAPI surface exposes the same logic for the CLI and HTTP clients.
 
@@ -129,6 +129,7 @@ The V1 repo currently verifies:
 - required invoice fields are extracted into structured JSON
 - extraction confidence is surfaced per field instead of hidden
 - business validation flags missing or suspicious values before approval
+- line-item arithmetic and document-level total reconciliation are checked explicitly
 - CLI and API use the same extraction and review logic
 
 Current sample review snapshot:
@@ -136,6 +137,8 @@ Current sample review snapshot:
 - vendor: `Northwind Industrial Supply`
 - invoice id: `INV-2048`
 - invoice amount: `18450.75 USD`
+- line items extracted: `3`
+- line-item subtotal: `18450.75 USD`
 - payment terms: `Net 30`
 - validation status: `needs_review` because the invoice exceeds the manual-review amount threshold
 
@@ -152,7 +155,7 @@ The V1 repo demonstrates:
 
 - deterministic parsing of OCR-style invoice text
 - structured invoice extraction with confidence metadata
-- validation rules for missing fields, due-date ordering, and high-value manual review
+- validation rules for missing fields, due-date ordering, line-item reconciliation, and high-value manual review
 - reviewer-ready JSON and Markdown outputs
 - FastAPI endpoints for sample extraction and ad hoc text submission
 
@@ -165,7 +168,7 @@ This repo proves that document intelligence can be transparent enough for hiring
 Realistic follow-up work for the next milestone:
 
 1. add PDF and image ingestion with a pluggable OCR provider interface
-2. support line-item extraction and total reconciliation
+2. support tax, discount, and freight normalization on top of the reconciled line-item model
 3. add reviewer correction capture for future feedback loops
 4. add vendor-specific extraction templates and anomaly thresholds
 5. expose a small browser review UI on top of the review packet

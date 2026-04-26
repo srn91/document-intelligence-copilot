@@ -15,6 +15,8 @@ def test_sample_invoice_endpoint_returns_review_packet() -> None:
     body = response.json()
     assert body["status"] == "needs_review"
     assert body["extraction"]["invoice_id"]["value"] == "INV-2048"
+    assert body["extraction"]["line_item_subtotal"] == "18450.75"
+    assert len(body["extraction"]["line_items"]) == 3
 
 
 def test_extract_endpoint_handles_custom_text() -> None:
@@ -30,6 +32,10 @@ def test_extract_endpoint_handles_custom_text() -> None:
                 "Terms: Net 30",
                 "Purchase Order: PO-4102",
                 "Total Amount: 980.25",
+                "",
+                "Line Items",
+                "- Precision gasket | Qty 3 | Unit Price 210.00 | Line Total 630.00",
+                "- Freight | Qty 1 | Unit Price 350.25 | Line Total 350.25",
             ]
         ),
     }
@@ -40,3 +46,4 @@ def test_extract_endpoint_handles_custom_text() -> None:
     body = response.json()
     assert body["status"] == "ready"
     assert body["issues"] == []
+    assert body["extraction"]["line_item_subtotal"] == "980.25"

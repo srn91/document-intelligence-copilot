@@ -34,6 +34,14 @@ def _portable(path: Path) -> str:
 def render_markdown(packet: ReviewPacket) -> str:
     issues = ["None"] if not packet.issues else [f"- `{issue.severity}` {issue.code}: {issue.message}" for issue in packet.issues]
     po_value = packet.extraction.purchase_order.value if packet.extraction.purchase_order else "not found"
+    line_items = (
+        ["- none extracted"]
+        if not packet.extraction.line_items
+        else [
+            f"- {item.description}: qty `{item.quantity:.2f}` x unit `{item.unit_price:.2f}` = `{item.line_total:.2f}`"
+            for item in packet.extraction.line_items
+        ]
+    )
     return "\n".join(
         [
             f"# Review Packet: {packet.document_name}",
@@ -47,8 +55,13 @@ def render_markdown(packet: ReviewPacket) -> str:
             f"- invoice date: `{packet.extraction.invoice_date.value}`",
             f"- due date: `{packet.extraction.due_date.value}`",
             f"- total amount: `{packet.extraction.total_amount:.2f} {packet.extraction.currency.value}`",
+            f"- line-item subtotal: `{packet.extraction.line_item_subtotal:.2f} {packet.extraction.currency.value}`",
             f"- payment terms: `{packet.extraction.payment_terms.value}`",
             f"- purchase order: `{po_value}`",
+            "",
+            "## Line Items",
+            "",
+            *line_items,
             "",
             "## Validation Issues",
             "",
