@@ -1,0 +1,16 @@
+Vendor: Northwind Industrial Supply
+Invoice Number: INV-2048
+Invoice Date: 2026-08-12
+Due Date: 2026-09-11
+Currency: USD
+Terms: Net 30
+Purchase Order: PO-8821
+Ship To: Accounts Payable, Alpine Ventures
+Total Amount: 18450.75
+
+Line Items
+- Precision valve assembly | Qty 15 | Unit Price 615.00
+- Sensor calibration kit | Qty 8 | Unit Price 653.72
+
+Notes
+- Invoice routed from OCR export batch 2026-08-12-A
