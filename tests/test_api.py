@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import base64
+
 from fastapi.testclient import TestClient
+from PIL import Image
 
 from app.main import app
 
@@ -47,6 +50,54 @@ def test_extract_endpoint_handles_custom_text() -> None:
     assert body["status"] == "ready"
     assert body["issues"] == []
     assert body["extraction"]["line_item_subtotal"] == "980.25"
+
+
+def test_sample_image_analysis_endpoint_returns_quality_summary(tmp_path, monkeypatch) -> None:
+    monkeypatch.setattr("app.vision.GENERATED_DIR", tmp_path)
+
+    response = client.get("/analyze/sample-invoice-image")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["document_name"] == "sample_invoice_scan.pgm"
+    assert body["metadata"]["width"] == 900
+    assert body["metadata"]["height"] == 1200
+    assert body["quality"]["ocr_readiness_score"] > 0.5
+    assert body["preprocessing_artifacts"]
+    assert body["analysis_path"].endswith("sample_invoice_scan_image_analysis.json")
+
+
+def test_analyze_image_endpoint_accepts_base64_image(tmp_path, monkeypatch) -> None:
+    monkeypatch.setattr("app.vision.GENERATED_DIR", tmp_path)
+
+    image = Image.new("L", (1200, 1600), color=244)
+    for y in range(140, 1180, 95):
+        for row in range(y, y + 12):
+            for x in range(90, 1080):
+                image.putpixel((x, row), 38)
+    for y in range(1260, 1460, 55):
+        for row in range(y, y + 10):
+            for x in range(90, 920):
+                image.putpixel((x, row), 52)
+
+    from io import BytesIO
+
+    buffer = BytesIO()
+    image.save(buffer, format="PNG")
+    payload = {
+        "document_name": "ad_hoc_invoice.png",
+        "image_base64": base64.b64encode(buffer.getvalue()).decode("utf-8"),
+        "persist_artifacts": True,
+    }
+
+    response = client.post("/analyze-image", json=payload)
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["metadata"]["format"] == "PNG"
+    assert body["quality"]["ocr_readiness_score"] >= 0.5
+    assert len(body["preprocessing_artifacts"]) == 2
+    assert body["analysis_path"].endswith("ad_hoc_invoice_image_analysis.json")
 
 
 def test_corrections_endpoint_persists_feedback(tmp_path, monkeypatch) -> None:

@@ -6,6 +6,7 @@ from typing import Literal
 
 
 Status = Literal["ready", "needs_review"]
+ImageReadinessStatus = Literal["ready", "needs_review", "not_ready"]
 
 
 @dataclass(frozen=True)
@@ -74,3 +75,69 @@ class ReviewerCorrection:
 
     def to_dict(self) -> dict[str, object]:
         return asdict(self)
+
+
+@dataclass(frozen=True)
+class ImageMetadata:
+    format: str
+    color_mode: str
+    width: int
+    height: int
+    file_size_bytes: int
+    aspect_ratio: float
+    orientation: Literal["portrait", "landscape", "square"]
+
+
+@dataclass(frozen=True)
+class ImageQualityAssessment:
+    brightness_mean: float
+    contrast_stddev: float
+    edge_density: float
+    foreground_ratio: float
+    resolution_score: float
+    brightness_score: float
+    contrast_score: float
+    sharpness_score: float
+    coverage_score: float
+    ocr_readiness_score: float
+    status: ImageReadinessStatus
+    warnings: list[str]
+
+
+@dataclass(frozen=True)
+class PreprocessingArtifact:
+    step: str
+    path: str
+
+
+@dataclass(frozen=True)
+class ImageAnalysisPacket:
+    document_name: str
+    status: ImageReadinessStatus
+    metadata: ImageMetadata
+    quality: ImageQualityAssessment
+    preprocessing_steps: list[str]
+    preprocessing_artifacts: list[PreprocessingArtifact]
+    recommended_action: str
+
+    def to_dict(self) -> dict[str, object]:
+        payload = asdict(self)
+        metadata = payload["metadata"]
+        metadata["aspect_ratio"] = round(float(metadata["aspect_ratio"]), 4)
+
+        quality = payload["quality"]
+        for field_name in (
+            "brightness_mean",
+            "contrast_stddev",
+            "edge_density",
+            "foreground_ratio",
+            "resolution_score",
+            "brightness_score",
+            "contrast_score",
+            "sharpness_score",
+            "coverage_score",
+            "ocr_readiness_score",
+        ):
+            quality[field_name] = round(float(quality[field_name]), 4)
+
+        return payload
