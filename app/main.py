@@ -54,6 +54,21 @@ def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
+@app.get("/")
+def index() -> dict[str, object]:
+    return {
+        "project": "document-intelligence-copilot",
+        "status": "ready",
+        "endpoints": {
+            "health": "/health",
+            "sample_documents": "/sample-documents",
+            "sample_invoice": "/extract/sample-invoice",
+            "sample_invoice_image": "/analyze/sample-invoice-image",
+            "docs": "/docs",
+        },
+    }
+
+
 @app.get("/sample-documents")
 def sample_documents() -> dict[str, list[str]]:
     return {"documents": [SAMPLE_INVOICE_PATH.name], "images": [SAMPLE_INVOICE_IMAGE_PATH.name]}

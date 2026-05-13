@@ -11,6 +11,15 @@ from app.main import app
 client = TestClient(app)
 
 
+def test_root_endpoint_lists_demo_paths() -> None:
+    response = client.get("/")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["project"] == "document-intelligence-copilot"
+    assert body["endpoints"]["sample_invoice"] == "/extract/sample-invoice"
+
+
 def test_sample_invoice_endpoint_returns_review_packet() -> None:
     response = client.get("/extract/sample-invoice")
 
