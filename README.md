@@ -220,7 +220,7 @@ Local quality gates:
 - `make analyze-image`
 - `make verify`
 
-## Current Capabilities
+## Capabilities
 
 The repo demonstrates:
 
