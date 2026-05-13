@@ -3,9 +3,9 @@
 A local-first invoice workflow with two explicit lanes: text extraction for OCR-exported invoice text, and scan analysis for invoice images that need OCR-readiness checks and preprocessing before text extraction.
 
 
-## Proof Snapshot
+## Results
 
-| Signal | Current evidence |
+| Area | Details |
 |---|---|
 | Structured extraction | Sample invoice `INV-2048` extracts vendor, invoice id, dates, `3` line items, payment terms, and total amount. |
 | Reconciliation check | Line-item subtotal reconciles to `18450.75 USD`, matching the invoice amount. |
@@ -13,7 +13,7 @@ A local-first invoice workflow with two explicit lanes: text extraction for OCR-
 | Scan readiness | Image lane reports `900 x 1200` sample scan metadata, OCR-readiness diagnostics, and preprocessing artifacts. |
 | Human feedback | `/corrections` appends operator corrections to JSONL for future tuning. |
 
-## What This Proves
+## Overview
 
 - Document AI workflows need extraction, validation, review packets, and correction loops, not just OCR output.
 - The repo shows both text extraction and scan-quality analysis in one auditable FastAPI workflow.
