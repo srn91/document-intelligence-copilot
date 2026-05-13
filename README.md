@@ -17,7 +17,7 @@ A local-first invoice workflow with two explicit lanes: text extraction for OCR-
 
 - Document AI workflows need extraction, validation, review packets, and correction loops, not just OCR output.
 - The repo shows both text extraction and scan-quality analysis in one auditable FastAPI workflow.
-- The evidence maps to GenAI, document intelligence, enterprise automation, and data extraction roles.
+- The implementation combines document parsing, validation, review packets, correction feedback, and API endpoints in one workflow.
 
 ## Problem
 
