@@ -176,7 +176,8 @@ make verify
 
 ## Hosted Deployment
 
-- Live API: [`/extract/sample-invoice`](https://document-intelligence-copilot.onrender.com/extract/sample-invoice)
+- Live demo: [document-intelligence-copilot.onrender.com](https://document-intelligence-copilot.onrender.com)
+- Sample API: [`/extract/sample-invoice`](https://document-intelligence-copilot.onrender.com/extract/sample-invoice)
 - Browser smoke result: the hosted sample extraction returned a full review packet in-browser, including structured fields, confidence metadata, validation issues, and the recommended action.
 - Render config: branch `main`, auto-deploy on commit, runtime `python`, build command `pip install -r requirements.txt`, start command `uvicorn app.main:app --host 0.0.0.0 --port $PORT`, health check path `/health`
 
