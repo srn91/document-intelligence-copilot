@@ -4,6 +4,7 @@ import base64
 import binascii
 
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
 
 from app.corrections import record_reviewer_correction
@@ -54,19 +55,24 @@ def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
-@app.get("/")
-def index() -> dict[str, object]:
-    return {
-        "project": "document-intelligence-copilot",
-        "status": "ready",
-        "endpoints": {
-            "health": "/health",
-            "sample_documents": "/sample-documents",
-            "sample_invoice": "/extract/sample-invoice",
-            "sample_invoice_image": "/analyze/sample-invoice-image",
-            "docs": "/docs",
-        },
-    }
+@app.get("/", response_class=HTMLResponse)
+def index() -> str:
+    return """<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Document Intelligence Copilot</title>
+<style>body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;max-width:860px;margin:48px auto;padding:0 24px;line-height:1.5;color:#111}a{color:#0645ad}</style></head>
+<body>
+<h1>Document Intelligence Copilot</h1>
+<p>Invoice extraction workflow with field confidence, validation issues, image-readiness checks, and reviewer correction capture.</p>
+<h2>Open endpoints</h2>
+<ul>
+<li><a href="/extract/sample-invoice">Sample invoice extraction</a></li>
+<li><a href="/analyze/sample-invoice-image">Sample image analysis</a></li>
+<li><a href="/sample-documents">Available samples</a></li>
+<li><a href="/docs">API docs</a></li>
+</ul>
+</body></html>"""
 
 
 @app.get("/sample-documents")

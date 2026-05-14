@@ -15,9 +15,9 @@ def test_root_endpoint_lists_demo_paths() -> None:
     response = client.get("/")
 
     assert response.status_code == 200
-    body = response.json()
-    assert body["project"] == "document-intelligence-copilot"
-    assert body["endpoints"]["sample_invoice"] == "/extract/sample-invoice"
+    assert "text/html" in response.headers["content-type"]
+    assert "Document Intelligence Copilot" in response.text
+    assert "/extract/sample-invoice" in response.text
 
 
 def test_sample_invoice_endpoint_returns_review_packet() -> None:
